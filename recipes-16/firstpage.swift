@@ -7,8 +7,13 @@
 
 import SwiftUI
 
-import SwiftUI
+func saveRecipesToUserDefaults(recipes: [String]) {
+    UserDefaults.standard.set(recipes, forKey: "recipes")
+}
 
+func loadRecipesFromUserDefaults() -> [String] {
+    return UserDefaults.standard.stringArray(forKey: "recipes") ?? []
+}
 struct firstPage: View { // Capitalized struct name for Swift naming convention
     @State var recipes: [String] = []
     @State private var newRecipe: String = ""
@@ -16,6 +21,15 @@ struct firstPage: View { // Capitalized struct name for Swift naming convention
     var body: some View {
         NavigationView {
             VStack {
+                HStack{
+                    Spacer()
+                    NavigationLink(destination: AddRecipes(recipes: $recipes)) {
+                        Image(systemName: "plus")
+                            .font(.largeTitle)
+                            .foregroundColor(.orange)
+                    }
+                    .padding(.trailing)
+                }
                 HStack {
                     Text("Food Recipes")
                         .font(.largeTitle)
@@ -23,13 +37,6 @@ struct firstPage: View { // Capitalized struct name for Swift naming convention
                         .padding(.leading)
 
                     Spacer()
-
-                    NavigationLink(destination: AddRecipes(recipes: $recipes)) {
-                        Image(systemName: "plus")
-                            .font(.largeTitle)
-                            .foregroundColor(.orange)
-                    }
-                    .padding(.trailing)
                 }
                 .padding(.top)
                 Spacer()
@@ -66,35 +73,103 @@ struct firstPage: View { // Capitalized struct name for Swift naming convention
 struct AddRecipes: View {
     @Binding var recipes: [String]
     @State private var newRecipe: String = ""
-
+    @State private var title: String = ""
+    @State private var description: String = ""
+    @State private var selectedImage: UIImage? = nil
+        @State private var showingImagePicker = false
+    
     var body: some View {
         VStack {
-            TextField("Enter recipe name", text: $newRecipe)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-
+           
             Button(action: {
                 if !newRecipe.isEmpty {
                     recipes.append(newRecipe)
                 }
             }) {
+                Spacer()
                 HStack {
-                    Text("Food Recipes")
-                      
-                    
-                    Spacer()
-                }
+                    Text("Save")
+                    .foregroundStyle(.orange)                }
+                   .padding(.trailing)
+                
+            }
+        
+        
+            HStack {
+                Text("New Recipe")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .padding(.leading)
+                
+                Spacer()
+                
+            }            .padding()
+            HStack{
+           
+            Button(action: {
+                            showingImagePicker = true
+                        }) {
+                            if let selectedImage = selectedImage {
+                                Image(uiImage: selectedImage)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 200)
+                            } else {
+                                VStack{
+                                    Image("photo")
+                                        .frame(width: 413, height: 181)
+                                        .padding(.horizontal)
+                                    
+                                    Text("Upload Photo").font(.custom("SF PRO", size: 22)).bold()
+                            
+                                        .foregroundStyle(.black)
+                                        .padding(.top,8)
+                                }
+                                .background(Color.gray.opacity(0.2))
+                            }
+                        }
+                        .padding(.bottom)
             }
 
-            Spacer()
+            HStack{
+                Text("Title")
+                    .font(.custom("SF Pro", size: 24))
+                   
+                    .padding(.leading)
+                Spacer()
+            }
+            
+                TextField("Title", text: $title)
+                .font(.custom("SF Pro", size: 24)).foregroundColor(Color(red: 117 / 255, green: 117 / 255, blue: 117 / 255) )
+                
+                .padding()
+                    .background(Color.gray.opacity(0.2))
+                    .frame(width: 366, height: 47)
+                    .cornerRadius(8)
+                    .padding(.bottom)
+                
+            HStack{
+                Text("Description")
+                    .font(.custom("SF Pro", size: 24))
+                   
+                    .padding(.leading)
+                Spacer()
+            }
+            
+            TextField("Description", text: $description )
+                .padding(.top)
+                .font(.custom("SF Pro", size: 24)).padding(.top)
+                .frame(width: 367, height: 130)
+                .background(Color.gray.opacity(0.2))
+                .cornerRadius(8)
+                .padding(.bottom)
+            
+            
+                Spacer()
+            }
+            
         }
-        .navigationTitle("New Recipe").font(.largeTitle)
-        .fontWeight(.bold)
-        .padding(.leading)
-        .padding()
     }
-}
-
 #Preview {
     firstPage()
 }
